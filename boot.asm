@@ -13,21 +13,34 @@ ch_loop:lodsb
    int 0x10
    jmp ch_loop
 
+
+segment_descriptors:
 ; Set Up the Global Descriptor Table
 ; - use a fully segmented memory model, separate data, stack and code segments 
 ; We will use the multi-segment mode in 32bit protected mode
 ;
 ; Segment Descriptors (High Level)
-; cs - base: 0x40000000 limit 0x3FFFFFFF (4MB)
-; ds - base: 0x80000000 limit 0xFFFFFFFE
-; ss - base: 0xC0000000 limit 0xFFFFFFFE
+; cs - base: 0x40000000 limit 0x0FFFFF(1MB)
+; ds - base: 0x40100000 limit 0x0FFFFF
+; ss - base: 0xC0200000 limit 0x0FFFFF
 ; 
 ; Segment Descriptors
+; Layout 
+; Bit 
+;  31:16                  15:0
+;  Base Address 15:0| Limit 0:15
+;                                                                    11:18
+;  base 31:24 | G | D/B | L | AVL | seg limit 19:16 | P | DPL | S | Type    | base 23:16
+;
 ;  Code Segment
-;  Bytes 0-3
-;
-;  Bytes 4-7
-;
+; 1st 32
+dw 0
+dw 0xFFFF
+; 2nd 32, G clear 
+;0100 000 | 0 | 1 
+db 0x40
+; d/b set | L unset | AVL unset | seg limit | 
+db 
 ;  Data Segment 
 ;  Bytes 0-3
 ;
