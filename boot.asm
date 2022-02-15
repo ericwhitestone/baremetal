@@ -25,31 +25,19 @@ segment_descriptors:
 ; ss - base: 0xC0200000 limit 0x0FFFFF
 ; 
 ; Segment Descriptors
-; Layout 
-; Bit 
-;  31:16                  15:0
-;  Base Address 15:0| Limit 0:15
-;                                                                    11:18
-;  base 31:24 | G | D/B | L | AVL | seg limit 19:16 | P | DPL | S | Type    | base 23:16
 ;
 ;  Code Segment
-; 1st 32
 dw 0
-dw 0xFFFF
-; 2nd 32, G clear 
-;0100 000 | 0 | 1 
-db 0x40
-; d/b set | L unset | AVL unset | seg limit | 
-db 
+dw 0xFFFF ; Limit 15:0 | Base addr 15:0
+db       ; base 23:16 
+db       ; P 15 | DPL 14:13 | S type 8:11 
+db       ; G 23 | D/B 22 | L 21 | AVL 20 | Limit 19:16
+db       ; base 31:24
+db 0x40  ; Base addr 31:24 0100 0000 
+
 ;  Data Segment 
-;  Bytes 0-3
-;
-;  Bytes 4-7
 ;
 ;  Stack Segment 
-;  Bytes 0-3
-;
-;  Bytes 4-7
 
 ; switch to 32bit protected mode
 ; 
