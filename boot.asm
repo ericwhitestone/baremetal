@@ -25,9 +25,9 @@ mov eax, cr0
 or eax, 1
 mov cr0, eax
 
-[BITS 32]
-jmp 10h:clear_pipe
+jmp 0x10:clear_pipe
 
+[BITS 32]
 
 clear_pipe:
 ;jump to the code segment, we are now in 32 bit protected mode
@@ -39,8 +39,8 @@ hang:
 	jmp 10h:hang
 
 
-
-
+;visual marker for gdt start
+dd 0xdeadbeef
 gdt_start:
    ; Set Up the Global Descriptor Table
    ; 32bit protected mode, with overlapping segments (flattened model)
@@ -58,6 +58,7 @@ gdt_start:
    db 11110011b
    ; 31:24 base 23 G 22 D/B 21 L 20 AVL 19:16 Seg Limit
    db 11011111b
+   db 0 
 
    ;code segment
    dw 0ffffh ; limit 4GB 
@@ -67,13 +68,19 @@ gdt_start:
    db 11111111b
    ; 31:24 base 23 G 22 D/B 21 L 20 AVL 19:16 Seg Limit
    db 11011111b
+   db 0
 
    ; stack segment 
 gdt_end: ; symbol for end of gdt table
 
+;mark table end
+dd 0xdeadbeef
+
+
+
 gtd_desc: 
-   db gdt_end - gdt_start
-   dw gdt_start
+   dw gdt_end - gdt_start
+   dd gdt_start
 
 
 msg db "Switching to protected 32bit mode!", 13, 10, 0
