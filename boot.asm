@@ -16,27 +16,37 @@
 
 cli ; disable interrupts
 xor ax,ax 
-mov ds, ax ; set the ds register to the ds descriptor at idx 1
+mov ds, ax ; set the ds register to 0 - not sure why yet
 
-lgdt [gtd_desc] ; load the descriptor table descriptor (base, limit)
+lgdt [gdt_desc] ; load the descriptor table descriptor (base, limit)
+
 
 ; enter protectd mode by setting bit 0 in cr0
 mov eax, cr0
 or eax, 1
 mov cr0, eax
+jmp 0x10: dword clear_pipe ; set code segment selector to idx 2
+                           ; dword required, nasm docs describe that it allows
+                           ; the jump instruction to be encoded as a 32 instruction 
+                           ; since we're now in protected mode
 
-jmp 0x10:clear_pipe
 
-[BITS 32]
 
 clear_pipe:
+[BITS 32]
+   mov eax, 0x08 ; offset 8 is 1 segment descriptor
+   mov ds, eax ; set data segment selector to idx 1 
+   mov ss, eax ; set stack segment selector to idx 1
+   mov eax, 0
+   mov es,  eax
+   mov fs, eax
+   mov gs, eax
+
+    jmp clear_pipe 
+
 ;jump to the code segment, we are now in 32 bit protected mode
-
-
-
-
-hang: 
-	jmp 10h:hang
+;hang: 
+;	jmp hang
 
 
 ;visual marker for gdt start
@@ -55,7 +65,11 @@ gdt_start:
    dw 0 ; base
    db 0 ; base 
    ; 15 P 14:13 DPL 12 S 11:8 Type
-   db 11110011b
+   ;Note: To make things simple, set the descriptor
+   ;privilege leve of the data segment to be 0. 
+   ;Loading SS with this segment is a special case, and
+   ;CPL must == DPL when the stack segment is loaded.
+   db 10010011b
    ; 31:24 base 23 G 22 D/B 21 L 20 AVL 19:16 Seg Limit
    db 11011111b
    db 0 
@@ -65,25 +79,30 @@ gdt_start:
    dw 0 ; base
    db 0 ; base 
    ; 15 P 14:13 DPL 12 S 11:8 Type
-   db 11111111b
+   ; Note: the DPL is set to 0
+   ; The DPL of a segment is the lowest privilege 
+   ; level that is allowed to access this segment. 
+   ; For eaxample, a CPL of 0 (highest priv) 
+   ; would not be permitted to access a CS with DPL 
+   ; 3. This appears to set the trust level of the code
+   ; segment, maybe to prevent untrusted code from being
+   ; run in ring 0. 
+   ; Type read/write (1010b)
+   db 10011010b
    ; 31:24 base 23 G 22 D/B 21 L 20 AVL 19:16 Seg Limit
    db 11011111b
    db 0
 
-   ; stack segment 
 gdt_end: ; symbol for end of gdt table
 
-;mark table end
-dd 0xdeadbeef
 
 
-
-gtd_desc: 
+gdt_desc: 
    dw gdt_end - gdt_start
    dd gdt_start
 
 
 msg db "Switching to protected 32bit mode!", 13, 10, 0
-times 510-($-$$) db 0 ; 2 bytes less now
+times 510-($-$$) db 0 ; 0 out the rest of mem till the boot signature
 db 0x55
 db 0xAA
