@@ -1,7 +1,8 @@
 # i386 Bootloader #
 
 ## Purpose ##
-This project is the documentation of my exploration into x86 bootloaders, architecture, x86 assembly, compilation, and linking. This is an attempt to write some code that does something "interesting" on most x86 machines, and leave behind some starter code artifacts and lessons learns for others that may be interested in something similar. 
+This project's main goal is to document the exploration into x86 bootloaders, architecture, x86 assembly, compilation, and linking. 
+This is an attempt to write some code that bootstraps the system in some way that provides a bare metal envrionment for experimentation. The end goal is to interact in some fun with with the hardware - keyboard, mouse, VGA, etc. Lastly, I'd like to leave behind some starter code, artifacts, and lessons learned for others that may be interested in something similar, and myself in the future! 
 
 
 ## Dependencies for Running and Debugging ## 
