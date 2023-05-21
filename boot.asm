@@ -1,4 +1,13 @@
 ; boot.asm
+
+
+; Register componets for reference:
+; [31:0]    [15:8]   [7:0]
+; EAX       AH       AL
+; EBX       BH       BL
+; ECX       CH       CL
+; EDX       DH       DL
+
 [BITS 16]
 [ORG 0x7C00]
 ;mov ax, 0x07c0
@@ -20,6 +29,11 @@ mov ds, ax ; set the ds register to 0 - not sure why yet
 
 lgdt [gdt_desc] ; load the descriptor table descriptor (base, limit)
 
+; Use BIOS routines for loading the second 
+; stage loader before entering protected mdoe
+mov ah, 0x8
+mov dl, 0x80
+int 13h
 
 ; enter protectd mode by setting bit 0 in cr0
 mov eax, cr0

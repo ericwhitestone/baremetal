@@ -16,9 +16,9 @@ This is an attempt to write some code that bootstraps the system in some way tha
 
 GDB Debugging
 
-The `debug` make target will start qemu i386, and wait for gdb to connect. Start gdb and execute:
-```
-target remote localhost:1234
+The [debug script](./debug.sh) will start qemu i386 and wait for gdb to connect. Once that is launched, start gdb and execute:
+```gdb
+(gdb) target remote localhost:1234
 ```
 
 To dump the contents of the bootloader, use objdump since there are no debugging symbols yet. The boot sector must be in a raw binary format. The following is very helpful when stepping through in gdb:
@@ -34,6 +34,26 @@ Execute a similar command for viewing the 32-bit Protected Mode portion that fol
 
  ```bash
  objdump -m i386 --start-address=0x7c00 -b binary -M intel --adjust-vma=0x7c00 -D disk.img
+ ```
+
+ When debugging the primary bootloader (PBL), a breakpoint will have to be set where it is loaded into memory.
+ For example, to set a breakpoint at the entry point of the PBL:
+
+```objdump
+boot.bin:     file format binary
+
+
+Disassembly of section .data:
+
+00007c00 <.data>:
+    7c00:	fa                   	cli
+    7c01:	31 c0                	xor    ax,ax
+    7c03:	8e d8                	mov    ds,ax
+
+```
+
+ ```gdb
+(gdb) b *0x7c00
  ```
 
 
